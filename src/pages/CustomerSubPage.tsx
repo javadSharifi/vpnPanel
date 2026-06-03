@@ -1,7 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { decodeContent } from '../utils/encoding';
+
+function downloadSvgAsPng(svgEl: SVGSVGElement | null, filename: string) {
+  if (!svgEl) return;
+  const svgData = new XMLSerializer().serializeToString(svgEl);
+  const canvas = document.createElement('canvas');
+  canvas.width = 440;
+  canvas.height = 440;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const img = new Image();
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, 440, 440);
+    URL.revokeObjectURL(url);
+    const pngUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = pngUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  img.src = url;
+}
 
 export default function CustomerSubPage() {
   const { gistId } = useParams<{ gistId: string }>();
@@ -68,6 +96,8 @@ export default function CustomerSubPage() {
     }
   };
 
+  const svgRef = useRef<SVGSVGElement>(null);
+
   const formatDate = (iso: string): string => {
     if (!iso) return '';
     const d = new Date(iso);
@@ -120,8 +150,15 @@ export default function CustomerSubPage() {
             </div>
 
             <div className="sub-qr">
-              <QRCodeSVG value={rawUrl} size={220} />
+              <QRCodeSVG ref={svgRef} value={rawUrl} size={220} />
             </div>
+            <button
+              className="btn btn-sm btn-primary"
+              style={{ marginBottom: 24 }}
+              onClick={() => downloadSvgAsPng(svgRef.current, 'vpn-subscription-qr.png')}
+            >
+              Download QR
+            </button>
           </>
         ) : (
           <p className="sub-no-url">No subscription URL found in this config.</p>

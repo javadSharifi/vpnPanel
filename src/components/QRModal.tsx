@@ -10,18 +10,26 @@ interface QRModalProps {
 function downloadSvgAsPng(svgEl: SVGSVGElement | null, filename: string) {
   if (!svgEl) return;
   const svgData = new XMLSerializer().serializeToString(svgEl);
+  const pad = 40;
+  const scale = 2;
+  const qrSize = parseInt(svgEl.getAttribute('width') || '220');
+  const totalSize = (qrSize + pad * 2) * scale;
+
   const canvas = document.createElement('canvas');
-  canvas.width = 440;
-  canvas.height = 440;
+  canvas.width = totalSize;
+  canvas.height = totalSize;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, totalSize, totalSize);
 
   const img = new Image();
   const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
 
   img.onload = () => {
-    ctx.drawImage(img, 0, 0, 440, 440);
+    ctx.drawImage(img, pad * scale, pad * scale, qrSize * scale, qrSize * scale);
     URL.revokeObjectURL(url);
     const pngUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');

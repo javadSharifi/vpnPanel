@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import type { Customer } from '../hooks/useGist';
+import { Card, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 
 interface CustomerCardProps {
   customer: Customer;
@@ -41,29 +44,32 @@ export default function CustomerCard({ customer, onEdit, onDelete, onQR }: Custo
   };
 
   return (
-    <div className="customer-card">
-      <div className="card-header">
-        <h3 className="card-title">{customer.description || 'Untitled'}</h3>
-        <span className="card-slug">{customer.filename}</span>
-      </div>
-      <div className="card-body">
-        <div className="card-url-row">
-          <span className="card-url" title={customer.rawUrl}>
-            {customer.rawUrl.length > 50
-              ? customer.rawUrl.substring(0, 50) + '...'
-              : customer.rawUrl}
-          </span>
-          <button className="btn btn-sm btn-ghost" onClick={handleCopy}>
-            {copied ? 'Copied ✓' : 'Copy'}
-          </button>
+    <Card className="hover:border-ring/50 transition-colors">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <h3 className="font-semibold text-base">{customer.description || 'Untitled'}</h3>
+            <Badge variant="outline" className="mt-1 font-mono text-xs">{customer.filename}</Badge>
+          </div>
         </div>
-        <span className="card-date">Updated: {formatDate(customer.updatedAt)}</span>
-      </div>
-      <div className="card-actions">
-        <button className="btn btn-sm btn-ghost" onClick={() => onQR(customer)}>QR</button>
-        <button className="btn btn-sm btn-ghost" onClick={() => onEdit(customer)}>Edit</button>
-        <button className="btn btn-sm btn-danger" onClick={() => onDelete(customer)}>Delete</button>
-      </div>
-    </div>
+
+        <div className="flex items-center gap-2 mt-3 mb-1">
+          <span className="text-xs text-muted-foreground font-mono truncate flex-1" title={customer.rawUrl}>
+            {customer.rawUrl.length > 50 ? customer.rawUrl.substring(0, 50) + '...' : customer.rawUrl}
+          </span>
+          <Button variant="ghost" size="sm" onClick={handleCopy}>
+            {copied ? 'Copied ✓' : 'Copy'}
+          </Button>
+        </div>
+
+        <p className="text-xs text-muted-foreground mb-3">Updated: {formatDate(customer.updatedAt)}</p>
+
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" onClick={() => onQR(customer)}>QR</Button>
+          <Button variant="ghost" size="sm" onClick={() => onEdit(customer)}>Edit</Button>
+          <Button variant="destructive" size="sm" onClick={() => onDelete(customer)}>Delete</Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

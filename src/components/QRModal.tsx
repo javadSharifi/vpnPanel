@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { Button } from './ui/button';
 
 interface QRModalProps {
   url: string;
@@ -44,24 +45,33 @@ function downloadSvgAsPng(svgEl: SVGSVGElement | null, filename: string) {
 }
 
 export default function QRModal({ url, customerName, onClose }: QRModalProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  const handleDownload = () => {
+    const svgEl = wrapperRef.current?.querySelector('svg') as SVGSVGElement | null;
+    downloadSvgAsPng(svgEl, `qrcode-${customerName}.png`);
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}>×</button>
-        <h3>{customerName}</h3>
-        <div className="qr-wrapper">
-          <QRCodeSVG ref={svgRef} value={url} size={220} />
-        </div>
-        <p className="qr-url">{url}</p>
+      <div
+        className="rounded-xl border border-border bg-card p-8 max-w-sm w-full text-center relative neon-glow"
+        onClick={e => e.stopPropagation()}
+      >
         <button
-          className="btn btn-sm btn-primary"
-          style={{ marginTop: 16 }}
-          onClick={() => downloadSvgAsPng(svgRef.current, `qrcode-${customerName}.png`)}
+          className="absolute top-3 right-4 text-muted-foreground hover:text-foreground text-2xl leading-none bg-transparent border-none cursor-pointer"
+          onClick={onClose}
         >
-          Download QR
+          ×
         </button>
+        <h3 className="text-lg font-semibold mb-5">{customerName}</h3>
+        <div className="flex justify-center mb-4" ref={wrapperRef}>
+          <QRCodeSVG value={url} size={220} />
+        </div>
+        <p className="text-xs text-muted-foreground break-all mb-4">{url}</p>
+        <Button variant="default" size="sm" onClick={handleDownload}>
+          Download QR
+        </Button>
       </div>
     </div>
   );

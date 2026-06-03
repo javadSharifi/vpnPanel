@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, ReactNode } from 'react';
-import { ToastContext, ToastType } from '../hooks/useToast';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { ToastContext, type ToastType } from '../hooks/useToast';
+import { cn } from '../lib/utils';
 
 interface ToastItem {
   id: number;
@@ -36,7 +37,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="toast-container">
         {toasts.map(toast => (
-          <div key={toast.id} className={`toast toast-${toast.type}`}>
+          <div key={toast.id} className={cn('toast', `toast-${toast.type}`)}>
             <span>{toast.message}</span>
             <button className="toast-close" onClick={() => removeToast(toast.id)}>×</button>
           </div>
